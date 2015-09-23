@@ -5,7 +5,6 @@
 #include <GL/glut.h>
 #include <stdio.h>
 
-static int window;
 int n;
 int recursionMenuNum;
 int viewMenuNum;
@@ -13,23 +12,11 @@ static GLdouble eyex = -3.0;
 static GLdouble eyey = 3.0;
 static GLdouble eyez = 3.0;
 
-/* initial tetrahedron */
-
-GLfloat v[4][3]={{0.0, 0.0, 1.0}, {0.0, 0.942809, -0.33333},
-      {-0.816497, -0.471405, -0.333333}, {0.816497, -0.471405, -0.333333}};
+/* initial cube */
 GLfloat c[8][3] = {{0.5, 0.5, 0.5}, {-0.5, 0.5, 0.5}, {-0.5, -0.5, 0.5}, {0.5, -0.5, 0.5}, {0.5, 0.5, -0.5}, {-0.5, 0.5, -0.5}, {-0.5, -0.5, -0.5}, {0.5, -0.5, -0.5}};
 
-GLfloat colors[4][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
-                        {0.0, 0.0, 1.0}, {0.0, 0.0, 0.0}};
 GLfloat color[6][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.62745, 0.0}, {0.7451, 0.0, 1.0}, {1.0, 1.0, 0.0}};
 
-
-void triangle(GLfloat *va, GLfloat *vb, GLfloat *vc)
-{
-       glVertex3fv(va);
-       glVertex3fv(vb);
-       glVertex3fv(vc);
-}
 
 void square(GLfloat *va, GLfloat *vb, GLfloat *vc, GLfloat *vd)
 {
@@ -37,18 +24,6 @@ void square(GLfloat *va, GLfloat *vb, GLfloat *vc, GLfloat *vd)
     glVertex3fv(vb);
     glVertex3fv(vc);
     glVertex3fv(vd);
-}
-
-void tetra(GLfloat *a, GLfloat *b, GLfloat *c, GLfloat *d)
-{
-    glColor3fv(colors[0]);
-    triangle(a, b, c);
-    glColor3fv(colors[1]);
-    triangle(a, c, d);
-    glColor3fv(colors[2]);
-    triangle(a, d, b);
-    glColor3fv(colors[3]);
-    triangle(b, d, c);
 }
 
 void cube(GLfloat *a, GLfloat *g) {
@@ -72,39 +47,11 @@ void cube(GLfloat *a, GLfloat *g) {
     square(g, c, d, h);
 }
 
-void divide_tetra(GLfloat *a, GLfloat *b, GLfloat *c, GLfloat *d, int m)
-{
-
-    GLfloat mid[6][3];
-    int j;
-    if(m>0)
-    {
-        /* compute six midpoints */
-
-        for(j=0; j<3; j++) mid[0][j]=(a[j]+b[j])/2;
-        for(j=0; j<3; j++) mid[1][j]=(a[j]+c[j])/2;
-        for(j=0; j<3; j++) mid[2][j]=(a[j]+d[j])/2;
-        for(j=0; j<3; j++) mid[3][j]=(b[j]+c[j])/2;
-        for(j=0; j<3; j++) mid[4][j]=(c[j]+d[j])/2;
-        for(j=0; j<3; j++) mid[5][j]=(b[j]+d[j])/2;
-
-        /* create 4 tetrahedrons by subdivision */
-
-        divide_tetra(a, mid[0], mid[1], mid[2], m-1);
-        divide_tetra(mid[0], b, mid[3], mid[5], m-1);
-        divide_tetra(mid[1], mid[3], c, mid[4], m-1);
-        divide_tetra(mid[2], mid[5], mid[4], d, m-1);
-
-    }
-    else(tetra(a,b,c,d)); /* draw tetrahedron at end of recursion */
-}
-
 divide_cube(GLfloat *a, GLfloat *g, int m) {
     GLfloat mid[38][3];
     GLfloat temp[3];
     int j, x, y;
     if(m > 0) {
-        // Some calculation bullshit
         double s = (a[0] - g[0])/3.0;
         if(s < 0)
             s *= -1;
@@ -236,7 +183,6 @@ void display()
     gluLookAt(eyex, eyey, eyez, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glBegin(GL_QUADS);
     divide_cube(c[0], c[6], n);
-    //divide_tetra(v[0], v[1], v[2], v[3], n);
     glEnd();
     glFlush();
 }
@@ -259,15 +205,25 @@ void recursionMenu(int num) {
 
 void viewMenu(int choice) {
     glLoadIdentity();
-    if(choice == 1) {
-        eyex = 3.0;
-        eyey = 3.0;
-        eyez = 3.0;
-    }
-    else {
-        eyex = -3.0;
-        eyey = -3.0;
-        eyez = -3.0;
+    switch(choice) {
+        case 0:
+            ++eyex;
+            break;
+        case 1:
+            --eyex;
+            break;
+        case 2:
+            ++eyey;
+            break;
+        case 3:
+            --eyey;
+            break;
+        case 4:
+            --eyez;
+            break;
+        case 5:
+            ++eyez;
+            break;
     }
     glutPostRedisplay();
     return;
@@ -281,8 +237,12 @@ void BuildPopupMenu(void) {
     glutAddMenuEntry("3", 3);
     glutAddMenuEntry("4", 4);
     viewMenuNum = glutCreateMenu(viewMenu);
-    glutAddMenuEntry("Front Right", 1);
-    glutAddMenuEntry("Back Left", 0);
+    glutAddMenuEntry("Positive X", 0);
+    glutAddMenuEntry("Negative X", 1);
+    glutAddMenuEntry("Up", 2);
+    glutAddMenuEntry("Down", 3);
+    glutAddMenuEntry("Negative Z", 4);
+    glutAddMenuEntry("Positive Z", 5);
     glutCreateMenu(recursionMenu);
     glutAddSubMenu("Levels of Recursion", recursionMenuNum);
     glutAddSubMenu("Viewing Angle", viewMenuNum);
@@ -294,7 +254,7 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
-    window = glutCreateWindow("3D Gasket");
+    glutCreateWindow("3D Gasket");
     glutReshapeFunc(myReshape);
     glutDisplayFunc(display);
     glEnable(GL_DEPTH_TEST);
