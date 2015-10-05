@@ -56,7 +56,7 @@ void OnMouseMove(int x, int y) {
         radius += (y-oldY)*0.015f;
    }
    else if(pan) {
-        targetx += (x-oldX)*0.015f;
+        targetx -= (x-oldX)*0.015f;
         targety += (y-oldY)*0.015f;
    }
    oldX = x; 
