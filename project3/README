@@ -1,3 +1,1 @@
-gcc -o gasket gasket3.c -lGL -lGLU -lglut
-
-g++ -o gasket gasket3.c -lGL -lGLU -lglut
+g++ -o objViewer objViewer.c++ -lGL -lGLU -lglut
