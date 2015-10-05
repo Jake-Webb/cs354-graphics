@@ -5,7 +5,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <math.h>
-//#include "loader.h"
+#include "loader.h"
 
 int n;
 int recursionMenuNum;
