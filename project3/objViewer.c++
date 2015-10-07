@@ -26,6 +26,8 @@ GLfloat color[6][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 
 int oldX, oldY;
 bool rotate, zoom, pan;
 float theta = 0, phi = 0;
+Trimesh t = Trimesh();
+
 void OnMouseDown(int button, int state, int x, int y) {
    rotate = false;
    zoom = false;
@@ -64,35 +66,6 @@ void OnMouseMove(int x, int y) {
    glutPostRedisplay(); 
 }
 
-void square(GLfloat *va, GLfloat *vb, GLfloat *vc, GLfloat *vd)
-{
-    glVertex3fv(va);
-    glVertex3fv(vb);
-    glVertex3fv(vc);
-    glVertex3fv(vd);
-}
-
-void cube(GLfloat *a, GLfloat *g) {
-    GLfloat b[3] = {g[0], a[1], a[2]};
-    GLfloat c[3] = {g[0], g[1], a[2]};
-    GLfloat d[3] = {a[0], g[1], a[2]};
-    GLfloat e[3] = {a[0], a[1], g[2]};
-    GLfloat f[3] = {g[0], a[1], g[2]};
-    GLfloat h[3] = {a[0], g[1], g[2]};
-    glColor3fv(color[0]);
-    square(a, b, c, d);
-    glColor3fv(color[1]);
-    square(a, d, h, e);
-    glColor3fv(color[2]);
-    square(a, e, f, b);
-    glColor3fv(color[3]);
-    square(e, h, g, f);
-    glColor3fv(color[4]);
-    square(f, g, c, b);
-    glColor3fv(color[5]);
-    square(g, c, d, h);
-}
-
 void display()
 {
     glClearColor(0, 0, 0, 1);
@@ -102,10 +75,21 @@ void display()
     eyez = targetz + radius*cos(theta);
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, 0.0, 1.0, 0.0);
-    glBegin(GL_QUADS);
-    cube(c[0], c[6]);
+    glBegin(GL_TRIANGLES);
+      
     glEnd();
     glFlush();
+}
+
+void placeVertices()
+{
+  int i = 1;
+  Vertex v;
+  for(i; i < t.vs.size(); ++i){
+    v = t.vs[i];
+    glNormal3f(v.normal[0], v.normal[1], v.normal[2]);
+    glVertex3f(v.x, v.y, v.z);
+  }
 }
 
 void myReshape(int w, int h)
@@ -131,8 +115,7 @@ int main(int argc, char **argv)
     glutMotionFunc(OnMouseMove);
     glEnable(GL_DEPTH_TEST);
     TrimeshLoader tl = TrimeshLoader();
-    Trimesh t = Trimesh();
     Trimesh *tp = &t;
-    tl.loadOBJ("models/mannequin.obj", tp);
+    tl.loadOBJ("models/cube.obj", tp);
     glutMainLoop();
 }
