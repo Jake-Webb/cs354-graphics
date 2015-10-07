@@ -130,5 +130,9 @@ int main(int argc, char **argv)
     glutMouseFunc(OnMouseDown);
     glutMotionFunc(OnMouseMove);
     glEnable(GL_DEPTH_TEST);
+    TrimeshLoader tl = TrimeshLoader();
+    Trimesh t = Trimesh();
+    Trimesh *tp = &t;
+    tl.loadOBJ("models/mannequin.obj", tp);
     glutMainLoop();
 }
