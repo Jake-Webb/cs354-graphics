@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "loader.h"
+#include <iostream>
 
 int n;
 int recursionMenuNum;
@@ -26,7 +27,7 @@ GLfloat color[6][3] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {1.0, 
 int oldX, oldY;
 bool rotate, zoom, pan;
 float theta = 0, phi = 0;
-Trimesh t = Trimesh();
+Trimesh *t = new Trimesh();
 
 void OnMouseDown(int button, int state, int x, int y) {
    rotate = false;
@@ -66,6 +67,17 @@ void OnMouseMove(int x, int y) {
    glutPostRedisplay(); 
 }
 
+void placeVertices()
+{
+  int i = 0;
+  Vertex v;
+  for(i; i < t->vs.size(); ++i){
+    v = t->vs[i];
+    glNormal3f(v.normal[0], v.normal[1], v.normal[2]);
+    glVertex3f(v.x, v.y, v.z);
+  }
+}
+
 void display()
 {
     glClearColor(0, 0, 0, 1);
@@ -76,20 +88,9 @@ void display()
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, 0.0, 1.0, 0.0);
     glBegin(GL_TRIANGLES);
-      
+      placeVertices();
     glEnd();
     glFlush();
-}
-
-void placeVertices()
-{
-  int i = 1;
-  Vertex v;
-  for(i; i < t.vs.size(); ++i){
-    v = t.vs[i];
-    glNormal3f(v.normal[0], v.normal[1], v.normal[2]);
-    glVertex3f(v.x, v.y, v.z);
-  }
 }
 
 void myReshape(int w, int h)
@@ -105,6 +106,8 @@ void myReshape(int w, int h)
 
 int main(int argc, char **argv)
 {
+    cout << "entered main" << endl;
+    cout.flush();
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
@@ -114,8 +117,21 @@ int main(int argc, char **argv)
     glutMouseFunc(OnMouseDown);
     glutMotionFunc(OnMouseMove);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
     TrimeshLoader tl = TrimeshLoader();
-    Trimesh *tp = &t;
-    tl.loadOBJ("models/cube.obj", tp);
+    tl.loadOBJ("models/triangle.obj", t);
+    
+  //   cout << "vertices:" << endl;
+  //   int i = 0;
+  //   Vertex v;
+  //   for(i; i < t->vs.size(); ++i){
+  //     cout << i+1 << " ";
+  //     v = t->vs[i];
+  //     cout << v.x << " " << v.y << " " << v.z << endl;
+  // }
+
     glutMainLoop();
+    delete[] t;
 }
