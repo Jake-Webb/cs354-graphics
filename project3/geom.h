@@ -22,8 +22,8 @@ class Vertex {
 		}
 
 		Vertex(float vs[]) {
-			cout << "entered vertex constructor" << endl;
-			cout.flush();
+			// cout << "entered vertex constructor" << endl;
+			// cout.flush();
 			x = vs[0];
 			y = vs[1];
 			z = vs[2];
@@ -31,6 +31,7 @@ class Vertex {
 			normal[1] = 0.0;
 			normal[2] = 1.0;
 			adjacentFaces = 0;
+
 		}
 
 		void addUpNormal(float n[]) {
@@ -52,12 +53,15 @@ class Face {
 		vector<Vertex*> vs;
 		float normal[3];
 
-		Face(Vertex tvs[]) {
-			cout << "entered face constructor" << endl;
-			cout.flush();
-			vs.push_back(tvs);
-			vs.push_back(tvs+1);
-			vs.push_back(tvs+2);
+		Face() {}
+
+		Face(Vertex *tvs[]) {
+			// cout << "entered face constructor" << endl;
+			// cout.flush();
+			vs.push_back(tvs[0]);
+			vs.push_back(tvs[1]);
+			vs.push_back(tvs[2]);
+			//cout << tvs << " " << tvs+1 << " " << tvs+2 << endl;
 			normal[0] = 0.0;
 			normal[1] = 0.0;
 			normal[2] = 1.0;
@@ -78,43 +82,47 @@ class Face {
 
 class Trimesh {
 	public:
-		vector<Vertex> vs;
+		vector<Vertex*> vs;
 		vector<Face> fs;
 
 		Trimesh(){
-			cout << "entered Trimesh constructor" << endl;
-			cout.flush();
+			// cout << "entered Trimesh constructor" << endl;
+			// cout.flush();
 			vector<Vertex> vs();
-			cout << "exiting Trimesh constructor" << endl;
-			cout.flush();
+			// cout << "exiting Trimesh constructor" << endl;
+			// cout.flush();
 		}
 
 		void addVertex(float tvs[]) {
-			cout << "entered addVertex" << endl;
-			cout.flush();
-			Vertex v = Vertex(tvs);
+			// cout << "entered addVertex" << endl;
+			// cout.flush();
+			Vertex *v = new Vertex(tvs);
 			vs.push_back(v);
+			// int i = 0;
+			// for(i; i < vs.size(); ++i){
+			// 	cout << vs[i].x << " " << vs[i].y << vs[i].z << endl;
+			// }
 		}
 
 		void addFace(int vi[]) {
-			cout << "entered addFace" << endl;
-			cout.flush();
+			// cout << "entered addFace" << endl;
+			// cout.flush();
 			int i = vi[0];
 			int j = vi[1];
 			int k = vi[2];
-			Vertex tvs[3] = {vs[i], vs[j], vs[k]};
+			Vertex *tvs[3] = {vs[i], vs[j], vs[k]};
 			Face f = Face(tvs);
 			fs.push_back(f);
 		}
 
 		void calculateNormals() {
-			cout << "entered calculateNormals" << endl;
-			cout.flush();
+			// cout << "entered calculateNormals" << endl;
+			// cout.flush();
 			int i = 0;
 			for(i; i < fs.size(); ++i)
 				fs[i].calculateNormal();
 			i = 1;
 			for(i; i < vs.size(); ++i)
-				vs[i].finalizeNormal();
+				vs[i]->finalizeNormal();
 		}
 };

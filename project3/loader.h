@@ -45,8 +45,8 @@ class TrimeshLoader
 
 		void loadOBJ(const char * objfile, Trimesh * pmesh)
 		{
-			cout << "entered loadOBJ" << endl;
-			cout.flush();
+			// cout << "entered loadOBJ" << endl;
+			// cout.flush();
 			ifstream ifs;
 			char line[LINE_SIZE];
 			char * tok;
@@ -103,11 +103,13 @@ class TrimeshLoader
 			if(cnt>=3)
 			{
 				int tri[3]={ids[0]-1,ids[1]-1,ids[2]-1};
+				//cout << "indicies: " << tri[0] << " " << tri[1] << " " << tri[2] << endl;
 				pmsh->addFace(tri);
 				for(int i=3;i<cnt;i++)
 				{
 					tri[1]=tri[2];
 					tri[2]=ids[i]-1;
+					//cout << "indicies: " << tri[0] << " " << tri[1] << " " << tri[2] << endl;
 					pmsh->addFace(tri);
 				}
 			}
