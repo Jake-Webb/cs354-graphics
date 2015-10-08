@@ -84,6 +84,7 @@ class Trimesh {
 	public:
 		vector<Vertex*> vs;
 		vector<Face> fs;
+		float bounds[6];
 
 		Trimesh(){
 			// cout << "entered Trimesh constructor" << endl;
@@ -96,6 +97,18 @@ class Trimesh {
 		void addVertex(float tvs[]) {
 			// cout << "entered addVertex" << endl;
 			// cout.flush();
+			if(tvs[0] < bounds[0])
+				bounds[0] = tvs[0];
+			else if(tvs[0] > bounds[1])
+				bounds[1] = tvs[0];
+			if(tvs[1] < bounds[2])
+				bounds[2] = tvs[1];
+			else if(tvs[1] > bounds[3])
+				bounds[3] = tvs[1];
+			if(tvs[2] < bounds[4])
+				bounds[4] = tvs[2];
+			else if(tvs[2] > bounds[5])
+				bounds[5] = tvs[2];
 			Vertex *v = new Vertex(tvs);
 			vs.push_back(v);
 			// int i = 0;

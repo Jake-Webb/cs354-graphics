@@ -11,10 +11,12 @@
 static GLdouble eyex = -200.0;
 static GLdouble eyey = 200.0;
 static GLdouble eyez = 200.0;
-static GLdouble radius = 1000.0;
+static GLdouble radius = 0;
 static GLdouble targetx = 0.0;
 static GLdouble targety = 0.0;
 static GLdouble targetz = 0.0;
+static GLdouble frontDistance = 0.0;
+static GLdouble backDistance = 0.0;
 
 int oldX, oldY;
 bool rotate, zoom, pan;
@@ -48,7 +50,7 @@ void OnMouseMove(int x, int y) {
         phi += (y-oldY)*0.015f;
    }
    else if(zoom) {
-        radius += (y-oldY)*0.015f;
+        radius += (y-oldY)*(frontDistance*0.02);
    }
    else if(pan) {
         targetx -= (x-oldX)*0.015f;
@@ -94,7 +96,7 @@ void myReshape(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(40.0, 1.0, 100, 1500);
+    gluPerspective(40.0, 1.0, frontDistance, backDistance);
     glMatrixMode(GL_MODELVIEW);
     glutPostRedisplay();
 }
@@ -107,7 +109,7 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
-    glutCreateWindow("3D Gasket");
+    glutCreateWindow(".obj File Loader/viewer");
     glutReshapeFunc(myReshape);
     glutDisplayFunc(display);
     glutMouseFunc(OnMouseDown);
@@ -118,8 +120,16 @@ int main(int argc, char **argv)
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_NORMALIZE);
     TrimeshLoader tl = TrimeshLoader();
-    tl.loadOBJ("models/mannequin.obj", t);
+    tl.loadOBJ("models/cactus.obj", t);
     t->calculateNormals();
+    float dz = t->bounds[5] - t->bounds[4];
+    float dx = t->bounds[1] - t->bounds[0];
+    float dy = t->bounds[3] - t->bounds[2];
+    float d = max(max(dz, dx), dy);
+    backDistance = 5*d;
+    frontDistance = 0.5*d;
+    radius = 3*d;
+
     
     // cout << "vertices:" << endl;
     // int i = 0;
