@@ -1,6 +1,3 @@
-/* recursive subdivision of a tetrahedron to form 3D Sierpinski gasket */
-/* number of recursive steps given on command line */
-
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <stdio.h>
@@ -19,6 +16,7 @@ static GLdouble frontDistance = 0.0;
 static GLdouble backDistance = 0.0;
 
 int oldX, oldY;
+int viewingNum = 0;
 bool rotate, zoom, pan;
 float theta = 0, phi = 0;
 Trimesh *t = new Trimesh();
@@ -46,8 +44,8 @@ void OnMouseDown(int button, int state, int x, int y) {
 
 void OnMouseMove(int x, int y) {
    if(rotate) {
-        theta += (x-oldX)*0.015f;
-        phi += (y-oldY)*0.015f;
+        theta += (x-oldX)*0.01f;
+        phi += (y-oldY)*0.01f;
    }
    else if(zoom) {
         radius += (y-oldY)*(frontDistance*0.02);
@@ -62,7 +60,7 @@ void OnMouseMove(int x, int y) {
 }
 
 void drawFaces() {
-  int i, j;
+  int i;
   Face f;
   Vertex *v;
   for(i = 0; i < t->fs.size(); ++i) {
@@ -76,11 +74,61 @@ void drawFaces() {
   }
 }
 
+void drawFaceNormals() {
+  int i;
+  Face f;
+  Vertex *v;
+  for(i = 0; i < t->fs.size(); ++i) {
+    f = t->fs[i];
+    glBegin(GL_LINES);
+      glVertex3f(f.center.x, f.center.y, f.center.z);
+      glVertex3f(f.center.x + f.normal[0], f.center.y + f.normal[1], f.center.z + f.normal[2]);
+    glEnd();
+  }
+}
+
 void display()
 {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    GLfloat lp[4] = {frontDistance*2, frontDistance*2, frontDistance*2, 1.0};
+    switch(viewingNum) {
+      case 0:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        break;
+      case 1:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        break;
+      case 2:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        break;
+      case 3:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glLightfv(GL_LIGHT0, GL_POSITION, lp);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_COLOR_MATERIAL);
+        glEnable(GL_NORMALIZE);
+        break;
+      case 4:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glLightfv(GL_LIGHT0, GL_POSITION, lp);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_COLOR_MATERIAL);
+        glEnable(GL_NORMALIZE);
+        drawFaceNormals();
+        break;
+      case 5:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glLightfv(GL_LIGHT0, GL_POSITION, lp);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_COLOR_MATERIAL);
+        glEnable(GL_NORMALIZE);
+        drawFaceNormals();
+        break; 
+    }
     eyex = targetx + radius*cos(phi)*sin(theta);
     eyey = targety + radius*sin(phi)*sin(theta);
     eyez = targetz + radius*cos(theta);
@@ -89,7 +137,28 @@ void display()
     glBegin(GL_TRIANGLES);
       drawFaces();
     glEnd();
+    glDisable(GL_LIGHTING);
     glFlush();
+}
+
+void Keyboard(unsigned char key, int x, int y) {
+  switch (key)
+  {
+  case 27:  
+    exit (0);
+    break;
+  case 'a':
+    if(viewingNum == 0)
+      viewingNum = 5;
+    else
+      --viewingNum;
+    break;
+  case 'd':
+    ++viewingNum;
+    viewingNum %= 6;
+    break;
+  }
+  display();
 }
 
 void myReshape(int w, int h)
@@ -97,7 +166,7 @@ void myReshape(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(40.0, 1.0, frontDistance, backDistance);
+    gluPerspective(40.0, 1.0, 0.1*frontDistance, backDistance);
     glMatrixMode(GL_MODELVIEW);
     glutPostRedisplay();
 }
@@ -105,8 +174,6 @@ void myReshape(int w, int h)
 
 int main(int argc, char **argv)
 {
-    // cout << "entered main" << endl;
-    // cout.flush();
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
@@ -115,11 +182,8 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     glutMouseFunc(OnMouseDown);
     glutMotionFunc(OnMouseMove);
+    glutKeyboardFunc (Keyboard);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_NORMALIZE);
     TrimeshLoader tl = TrimeshLoader();
     tl.loadOBJ("models/cessna.obj", t);
     t->calculateNormals();
@@ -130,32 +194,6 @@ int main(int argc, char **argv)
     backDistance = 5*d;
     frontDistance = 0.5*d;
     radius = 3*d;
-
-    
-    // cout << "vertices:" << endl;
-    // int i = 0;
-    // Vertex *v;
-    // for(i; i < t->vs.size(); ++i){
-    //   cout << i+1 << " ";
-    //   v = t->vs[i];
-    //   cout << v->x << " " << v->y << " " << v->z << "\t";
-    //   cout << "normal: " << v->normal[0] << " " << v->normal[1] << " " << v->normal[2] << endl;
-    // }
-
-    // cout << endl;
-
-    // cout << "faces:" << endl;
-    // i = 0;
-    // Face f;
-    // for(i; i < t->fs.size(); ++i){
-    //   cout << "face " << i+1 << endl;
-    //   f = t->fs[i];
-    //   cout << (f.vs[0])->x << " " << (f.vs[0])->y << " " << (f.vs[0])->z << endl;
-    //   cout << (f.vs[1])->x << " " << (f.vs[1])->y << " " << (f.vs[1])->z << endl;
-    //   cout << (f.vs[2])->x << " " << (f.vs[2])->y << " " << (f.vs[2])->z << endl;
-    //   cout << "normal: " << f.normal[0] << " " << f.normal[1] << " " << f.normal[2] << endl << endl;
-    // }
-
     glutMainLoop();
     delete[] t;
 }

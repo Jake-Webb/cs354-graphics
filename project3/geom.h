@@ -52,6 +52,7 @@ class Face {
 	public:
 		vector<Vertex*> vs;
 		float normal[3];
+		Vertex center;
 
 		Face() {}
 
@@ -68,15 +69,25 @@ class Face {
 		}
 
 		void calculateNormal() {
+			float normalLength;
 			float u[3] = {vs[1]->x - vs[0]->x, vs[1]->y - vs[0]->y, vs[1]->z - vs[0]->z};
 			float v[3] = {vs[2]->x - vs[0]->x, vs[2]->y - vs[0]->y, vs[2]->z - vs[0]->z};
 			normal[0] = (u[1] * v[2]) - (u[2] * v[1]);
 			normal[1] = (u[2] * v[0]) - (u[0] * v[2]);
 			normal[2] = (u[0] * v[1]) - (u[1] * v[0]);
 
+			normalLength = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+			normal[0] /= normalLength;
+			normal[1] /= normalLength;
+			normal[2] /= normalLength;
+
 			vs[0]->addUpNormal(normal);
 			vs[1]->addUpNormal(normal);
 			vs[2]->addUpNormal(normal);
+
+			center.x = (vs[0]->x + vs[1]->x + vs[2]->x)/3;
+    		center.y = (vs[0]->y + vs[1]->y + vs[2]->y)/3;
+    		center.z = (vs[0]->z + vs[1]->z + vs[2]->z)/3;
 		}
 };
 
