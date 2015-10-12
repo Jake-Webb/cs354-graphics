@@ -80,6 +80,7 @@ void display()
 {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     eyex = targetx + radius*cos(phi)*sin(theta);
     eyey = targety + radius*sin(phi)*sin(theta);
     eyez = targetz + radius*cos(theta);
@@ -120,7 +121,7 @@ int main(int argc, char **argv)
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_NORMALIZE);
     TrimeshLoader tl = TrimeshLoader();
-    tl.loadOBJ("models/cactus.obj", t);
+    tl.loadOBJ("models/cessna.obj", t);
     t->calculateNormals();
     float dz = t->bounds[5] - t->bounds[4];
     float dx = t->bounds[1] - t->bounds[0];
