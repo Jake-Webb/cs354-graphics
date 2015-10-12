@@ -5,15 +5,15 @@
 #include "loader.h"
 #include <iostream>
 
-static GLdouble eyex = -200.0;
-static GLdouble eyey = 200.0;
-static GLdouble eyez = 200.0;
-static GLdouble radius = 0;
-static GLdouble targetx = 0.0;
-static GLdouble targety = 0.0;
-static GLdouble targetz = 0.0;
-static GLdouble frontDistance = 0.0;
-static GLdouble backDistance = 0.0;
+static GLdouble eyex;
+static GLdouble eyey;
+static GLdouble eyez;
+static GLdouble radius;
+static GLdouble targetx;
+static GLdouble targety;
+static GLdouble targetz;
+static GLdouble frontDistance;
+static GLdouble backDistance;
 
 int oldX, oldY;
 int viewingNum = 0;
@@ -62,7 +62,7 @@ void OnMouseMove(int x, int y) {
 void drawFaces() {
   int i;
   Face f;
-  Vertex *v;
+  glColor4ub(255, 255, 255, 255); 
   for(i = 0; i < t->fs.size(); ++i) {
     f = t->fs[i];
     glNormal3f((f.vs[0])->normal[0], (f.vs[0])->normal[1], (f.vs[0])->normal[2]);
@@ -77,14 +77,27 @@ void drawFaces() {
 void drawFaceNormals() {
   int i;
   Face f;
-  Vertex *v;
+  glColor4ub(255, 0, 0, 255); 
+  glBegin(GL_LINES);
   for(i = 0; i < t->fs.size(); ++i) {
     f = t->fs[i];
-    glBegin(GL_LINES);
-      glVertex3f(f.center.x, f.center.y, f.center.z);
-      glVertex3f(f.center.x + f.normal[0], f.center.y + f.normal[1], f.center.z + f.normal[2]);
-    glEnd();
+    glVertex3f(f.center.x, f.center.y, f.center.z);
+    glVertex3f(f.center.x + f.normal[0], f.center.y + f.normal[1], f.center.z + f.normal[2]);
   }
+  glEnd();
+}
+
+void drawVertexNormals() {
+  int i;
+  Vertex *v;
+  glColor4ub(0, 0, 255, 255); 
+  glBegin(GL_LINES);
+  for(i = 0; i < t->vs.size(); ++i) {
+    v = t->vs[i];
+      glVertex3f(v->x, v->y, v->z);
+      glVertex3f(v->x + v->normal[0], v->y + v->normal[1], v->z + v->normal[2]);
+  }
+  glEnd();
 }
 
 void display()
@@ -127,6 +140,7 @@ void display()
         glEnable(GL_COLOR_MATERIAL);
         glEnable(GL_NORMALIZE);
         drawFaceNormals();
+        drawVertexNormals();
         break; 
     }
     eyex = targetx + radius*cos(phi)*sin(theta);
@@ -134,6 +148,7 @@ void display()
     eyez = targetz + radius*cos(theta);
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, 0.0, 1.0, 0.0);
+    glColor4ub(255, 255, 255, 255); 
     glBegin(GL_TRIANGLES);
       drawFaces();
     glEnd();
@@ -185,12 +200,15 @@ int main(int argc, char **argv)
     glutKeyboardFunc (Keyboard);
     glEnable(GL_DEPTH_TEST);
     TrimeshLoader tl = TrimeshLoader();
-    tl.loadOBJ("models/cessna.obj", t);
+    tl.loadOBJ("models/mannequin.obj", t);
     t->calculateNormals();
     float dz = t->bounds[5] - t->bounds[4];
     float dx = t->bounds[1] - t->bounds[0];
     float dy = t->bounds[3] - t->bounds[2];
     float d = max(max(dz, dx), dy);
+    targetx = (t->bounds[1] + t->bounds[0]) / 2;
+    targety = (t->bounds[3] + t->bounds[2]) / 2;
+    targetz = (t->bounds[4] + t->bounds[5]) / 2;
     backDistance = 5*d;
     frontDistance = 0.5*d;
     radius = 3*d;

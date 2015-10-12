@@ -42,9 +42,15 @@ class Vertex {
 		}
 
 		void finalizeNormal() {
+			float normalLength;
 			normal[0] /= adjacentFaces;
 			normal[1] /= adjacentFaces;
 			normal[2] /= adjacentFaces;
+
+			normalLength = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+			normal[0] /= normalLength;
+			normal[1] /= normalLength;
+			normal[2] /= normalLength;
 		}
 };
 
