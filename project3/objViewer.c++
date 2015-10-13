@@ -4,6 +4,7 @@
 #include <math.h>
 #include "loader.h"
 #include <iostream>
+#include <string>
 
 static GLdouble eyex;
 static GLdouble eyey;
@@ -14,6 +15,7 @@ static GLdouble targety;
 static GLdouble targetz;
 static GLdouble frontDistance;
 static GLdouble backDistance;
+void takeInput();
 
 int oldX, oldY;
 int viewingNum = 0;
@@ -173,8 +175,7 @@ void Keyboard(unsigned char key, int x, int y) {
     viewingNum %= 6;
     break;
   case ':':
-    ++viewingNum;
-    viewingNum %= 6;
+    takeInput();
     break;
   }
   display();
@@ -190,6 +191,12 @@ void myReshape(int w, int h)
     glutPostRedisplay();
 }
 
+void takeInput() {
+  char *input;
+  cout << "Input command:" << endl;
+  cin >> input;
+  cout << "you just inputted " << input << endl;
+}
 
 int main(int argc, char **argv)
 {
@@ -201,7 +208,8 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     glutMouseFunc(OnMouseDown);
     glutMotionFunc(OnMouseMove);
-    glutKeyboardFunc (Keyboard);
+    glutKeyboardFunc(Keyboard);
+    //glutIdleFunc(idle);
     glEnable(GL_DEPTH_TEST);
     TrimeshLoader tl = TrimeshLoader();
     tl.loadOBJ("models/sphere.obj", t);
