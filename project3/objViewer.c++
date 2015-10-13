@@ -162,13 +162,17 @@ void Keyboard(unsigned char key, int x, int y) {
   case 27:  
     exit (0);
     break;
-  case 'a':
+  case ',':
     if(viewingNum == 0)
       viewingNum = 5;
     else
       --viewingNum;
     break;
-  case 'd':
+  case '.':
+    ++viewingNum;
+    viewingNum %= 6;
+    break;
+  case ':':
     ++viewingNum;
     viewingNum %= 6;
     break;
@@ -200,7 +204,7 @@ int main(int argc, char **argv)
     glutKeyboardFunc (Keyboard);
     glEnable(GL_DEPTH_TEST);
     TrimeshLoader tl = TrimeshLoader();
-    tl.loadOBJ("models/mannequin.obj", t);
+    tl.loadOBJ("models/sphere.obj", t);
     t->calculateNormals();
     float dz = t->bounds[5] - t->bounds[4];
     float dx = t->bounds[1] - t->bounds[0];
@@ -214,4 +218,6 @@ int main(int argc, char **argv)
     radius = 3*d;
     glutMainLoop();
     delete[] t;
+    char *string;
+    cin >> string;
 }
