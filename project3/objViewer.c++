@@ -203,8 +203,8 @@ void takeInput() {
   Trimesh *tt;
   TrimeshLoader tl;
   const char *c;
-  float d, dx, dy, dz;
-  string input;
+  float d, dx, dy, dz, tx, ty, tz;
+  string input = "";
   cout << "Input command: ";
   cin >> input;
   switch(input[0]) {
@@ -246,18 +246,10 @@ void takeInput() {
       frontDistance = 0.5*d;
       radius = 3*d;
       break;
-    case 'I':
-      break;
-    case 'T':
-      break;
-    case 'S':
-      break;
-    case 'R':
-      break;
-    case 'V':
-      break;
-    case 'W':
-      break;
+    default:
+      cin.ignore(256, '\n');
+      cout << "Invalid command, try again" << endl;
+      takeInput();
   }
   myReshape(500, 500);
 }
