@@ -104,8 +104,8 @@ class Trimesh {
 		float bounds[6];
 
 		Trimesh(){
-			// cout << "entered Trimesh constructor" << endl;
-			// cout.flush();
+			 //cout << "entered Trimesh constructor" << endl;
+			 //cout.flush();
 			vector<Vertex> vs();
 			// cout << "exiting Trimesh constructor" << endl;
 			// cout.flush();
@@ -147,7 +147,7 @@ class Trimesh {
 
 		void calculateNormals() {
 			// cout << "entered calculateNormals" << endl;
-			// cout.flush();
+			 //cout.flush();
 			int i = 0;
 			for(i; i < fs.size(); ++i)
 				fs[i].calculateNormal();

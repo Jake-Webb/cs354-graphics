@@ -45,8 +45,8 @@ class TrimeshLoader
 
 		void loadOBJ(const char * objfile, Trimesh * pmesh)
 		{
-			// cout << "entered loadOBJ" << endl;
-			// cout.flush();
+			 //cout << "entered loadOBJ" << endl;
+			 //cout.flush();
 			ifstream ifs;
 			char line[LINE_SIZE];
 			char * tok;

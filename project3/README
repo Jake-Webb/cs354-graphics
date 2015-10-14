@@ -1,1 +1,7 @@
-g++ -o objViewer objViewer.c++ -lGL -lGLU -lglut
+g++ -o objViewer objViewer.c++  -L/usr/lib/nvidia-340-updates -lGL -lGLU -lglut
+
+Use the above to compile my object viewer assuming you are in the proper working directory.
+Running objViewer should bring up a blank screen initially. A .obj file must be loaded for any object to be viewed. I order to do this the ':' must be typed while within the openGL window. This will bring up a prompt within the terminal. Typing 'L' followed by the .obj file location will load the object into the window.
+The object should be viewed in vertices rendering. Pressing the comma and period keys while within the the openGL window will cycle between the different rendering styles.
+Typing in the semicolon at any point within the openGL window should bring up a prompt from the terminal. This can be used to load and delete objects at will.
+*Always remember to be within the correct window. I have often been trying to type my load command into the openGL window or trying to cycle through rendering options while in the terminal. It's kind of annoying.
