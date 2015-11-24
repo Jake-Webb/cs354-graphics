@@ -19,15 +19,13 @@ varying vec3 c0, c1, c2;
 
 void main()
 {
-  vec3 bNorm = 2.0 * texture2D(normalMap,vec2(normalMapTexCoord.x*6.0, normalMapTexCoord.y*-2.0)).rgb - 1.0;
-  bNorm = normalize(bNorm);
-  vec3 lightDirectionNorm = normalize(lightDirection);
-  float diffuse = 0.0;
-  if ( lightDirectionNorm.z >= 0.0){
-      diffuse = max( dot(bNorm,lightDirectionNorm), 0.0);}
-  vec3 halfNorm = normalize(halfAngle);
-
-  float specular = max(dot(vec3(0,0,1),halfNorm),0);
-
-  gl_FragColor = 0.5*(LMa + diffuse*LMd) + 0.5*pow(specular,shininess)*LMs + texture2D(decal,normalMapTexCoord*vec2(-6.0,2.0));
+  vec3 theNormal = 2.0 * texture2D(normalMap, vec2(normalMapTexCoord.x * 6.0, normalMapTexCoord.y * -2.0)).rgb - 1.0;
+  vec3 half = normalize(halfAngle);
+  vec3 lightDir = normalize(lightDirection);
+  float diff = 0.0;
+  float spec = max(dot(vec3(0, 0, 1), half), 0);
+  theNormal = normalize(theNormal);
+  if(lightDir.z >= 0.0)
+      diff = max(dot(theNormal, lightDir), 0.0);
+  gl_FragColor = 0.5 * (LMa + diff * LMd) + 0.5 * pow(spec, shininess) * LMs + texture2D(decal, normalMapTexCoord * vec2(-6.0, 2.0));
 }

@@ -19,7 +19,7 @@ varying vec3 c0, c1, c2;
 
 void main()
 {
-  vec3 halfNorm = normalize(halfAngle);
-    float specular = max(halfNorm.z,0);
-    gl_FragColor = LMa + pow(specular,shininess)*LMs;
+  vec3 half = normalize(halfAngle);
+  float spec = max(half.z, 0);
+  gl_FragColor = LMa + pow(spec, shininess) * LMs;
 }

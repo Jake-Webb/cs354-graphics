@@ -19,11 +19,11 @@ varying vec3 c0, c1, c2;
 
 void main()
 {
-  vec3 bNorm = 2.0 * texture2D(normalMap,vec2(normalMapTexCoord.x*6.0, normalMapTexCoord.y*-2.0)).rgb - 1.0;
-    bNorm = normalize(bNorm);
-    vec3 lightDirectionNorm = normalize(lightDirection);
-    float diffuse = 0.0;
-    if ( lightDirectionNorm.z >= 0.0){
-        diffuse = max( dot(bNorm,lightDirectionNorm), 0.0);}
-    gl_FragColor = LMa + diffuse*LMd;
+  vec3 theNormal = 2.0 * texture2D(normalMap, vec2(normalMapTexCoord.x * 6.0, normalMapTexCoord.y * -2.0)).rgb - 1.0;
+  vec3 lightDir = normalize(lightDirection);
+  float diff = 0.0;
+  theNormal = normalize(theNormal);
+  if(lightDir.z >= 0.0)
+      diff = max(dot(theNormal, lightDir), 0.0);
+  gl_FragColor = LMa + diff * LMd;
 }

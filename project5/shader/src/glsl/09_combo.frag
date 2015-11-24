@@ -20,18 +20,16 @@ varying vec3 c0, c1, c2;
 void main()
 {
   mat3 M = mat3(c0, c1, c2);
-    vec3 eyeDirection_normalized = normalize(eyeDirection);
-    vec3 bNorm = 2.0 * texture2D(normalMap,vec2(normalMapTexCoord.x*6.0, normalMapTexCoord.y*-2.0)).rgb - 1.0;
-    bNorm = normalize(bNorm);
-    vec3 reflect_vector = M*reflect(eyeDirection_normalized,bNorm);
-    reflect_vector = normalize(objectToWorld*reflect_vector);
-
-    vec3 lightDirectionNorm = normalize(lightDirection);
-    float diffuse = 0.0;
-    if ( lightDirectionNorm.z >= 0.0){
-        diffuse = max( dot(bNorm,lightDirectionNorm), 0.0);}
-    vec3 halfNorm = normalize(halfAngle);
-    float specular = max(dot(vec3(0,0,1),halfNorm),0);
-
-    gl_FragColor = 0.5*(LMa + diffuse*LMd) + 0.5*pow(specular,shininess)*LMs + 0.6*textureCube(envmap, -1.0*reflect_vector);
+  vec3 eyeDir = normalize(eyeDirection);
+  vec3 theNormal = 2.0 * texture2D(normalMap, vec2(normalMapTexCoord.x * 6.0, normalMapTexCoord.y * -2.0)).rgb - 1.0;
+  theNormal = normalize(theNormal);
+  vec3 reflectVector = M*reflect(eyeDir, theNormal);
+  vec3 lightDir = normalize(lightDirection);
+  float diff = 0.0;
+  vec3 halfNorm = normalize(halfAngle);
+  float spec = max(dot(vec3(0,0,1), halfNorm), 0);
+  reflectVector = normalize(objectToWorld * reflectVector);
+  if(lightDir.z >= 0.0){
+    diff = max( dot(theNormal, lightDir), 0.0);}
+  gl_FragColor = 0.5 * (LMa + diff * LMd) + 0.5 * pow(spec, shininess) * LMs + 0.6 * textureCube(envmap, -1.0 * reflectVector);
 }

@@ -20,10 +20,10 @@ varying vec3 c0, c1, c2;
 void main()
 {
   mat3 M = mat3(c0, c1, c2);
-    vec3 eyeDirection_normalized = normalize(eyeDirection);
-    vec3 bNorm = 2.0 * texture2D(normalMap,vec2(normalMapTexCoord.x*6.0, normalMapTexCoord.y*-2.0)).rgb - 1.0;
-    bNorm = normalize(bNorm);
-    vec3 reflect_vector = M*reflect(eyeDirection_normalized,bNorm);
-    reflect_vector = normalize(objectToWorld*reflect_vector);
-    gl_FragColor = textureCube(envmap, -1.0*reflect_vector);
+  vec3 eyeDir = normalize(eyeDirection);
+  vec3 theNormal = 2.0 * texture2D(normalMap, vec2(normalMapTexCoord.x * 6.0, normalMapTexCoord.y * -2.0)).rgb - 1.0;
+  theNormal = normalize(theNormal);
+  vec3 reflectVector = M*reflect(eyeDir, theNormal);
+  reflectVector = normalize(objectToWorld * reflectVector);
+  gl_FragColor = textureCube(envmap, -1.0 * reflectVector);
 }

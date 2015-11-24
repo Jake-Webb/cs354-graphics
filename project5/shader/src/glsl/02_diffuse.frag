@@ -19,7 +19,7 @@ varying vec3 c0, c1, c2;
 
 void main()
 {
-  vec3 lightNorm = normalize(lightDirection);
-    float diffuse = max(lightNorm.z,0);
-    gl_FragColor = LMa + diffuse*LMd;  // XXX fix me
+  vec3 lightDir = normalize(lightDirection);
+  float diff = max(lightDir.z, 0);
+  gl_FragColor = LMa + diff * LMd;
 }
