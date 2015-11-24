@@ -17,8 +17,8 @@ void main()
   normalMapTexCoord = vec2(parametric.x, parametric.y);
   vec2 mappedUV = radians(parametric * 360.0);
   float cosU = cos(mappedUV.x);
-  float cosV = cos(mappedUV.y);
   float sinU = sin(mappedUV.x);
+  float cosV = cos(mappedUV.y);
   float sinV = sin(mappedUV.y);
   vec3 posVec = vec3(torusInfo.x * cosU + torusInfo.y * cosU * cosV, torusInfo.x * sinU + torusInfo.y * cosV * sinU, torusInfo.y * sinV);
   gl_Position = gl_ModelViewProjectionMatrix * vec4(posVec.x, posVec.y, posVec.z, 1);
@@ -37,4 +37,3 @@ void main()
   c1 = binormal;
   c2 = normal;
 }
-
