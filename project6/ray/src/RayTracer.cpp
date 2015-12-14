@@ -80,8 +80,37 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 		// Instead of just returning the result of shade(), add some
 		// more steps: add in the contributions from reflected and refracted
 		// rays.
-	  const Material& m = i.getMaterial();
-	  colorC = m.shade(scene, r, i);
+	  
+	const Material& m = i.getMaterial();
+	colorC = m.shade(scene, r, i);
+    if(depth < 1)
+        return colorC;
+    Vec3d pointOnObject = r.at(i.t);
+
+    Vec3d reflectedDirectionCi(0.0f,0.0f,0.0f);
+    Vec3d reflectedDirectionSi(0.0f,0.0f,0.0f);
+    Vec3d reflectedDir(0.0f,0.0f,0.0f);
+    updateReflectionParams(r,i,reflectedDirectionCi,reflectedDirectionSi,reflectedDir);
+
+    Vec3d refractedDirectionSt(0.0f,0.0f,0.0f);
+    Vec3d refractedDirectionCt(0.0f,0.0f,0.0f);
+    Vec3d refractedDir(0.0f,0.0f,0.0f);
+    bool shootRefractedRay = updateRefractionParams(r,i,m,reflectedDirectionSi,refractedDirectionSt,refractedDirectionCt, refractedDir);
+
+    ray reflectedRay(pointOnObject, reflectedDir, ray::REFLECTION);
+    ray refractedRay(pointOnObject, refractedDir, ray::REFRACTION);
+
+    Vec3d reflectionIntensity = m.kr(i);
+    Vec3d refractionIntensity(0.0f,0.0f,0.0f);
+
+    reflectionIntensity %=  traceRay(reflectedRay, depth - 1);
+    if(shootRefractedRay){
+        refractionIntensity = m.kt(i);
+        refractionIntensity %= traceRay(refractedRay, depth - 1);}
+
+    colorC += reflectionIntensity;
+    colorC += refractionIntensity;
+    return colorC;
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
@@ -89,6 +118,47 @@ Vec3d RayTracer::traceRay(ray& r, int depth)
 		colorC = Vec3d(0.0, 0.0, 0.0);
 	}
 	return colorC;
+}
+
+void RayTracer::updateReflectionParams(const ray& r, const isect& i,Vec3d& reflectedDirectionCi, Vec3d& reflectedDirectionSi, Vec3d& reflectedDir){
+    reflectedDirectionCi = (((-1)*r.getDirection())*i.N)*i.N;
+    reflectedDirectionSi = reflectedDirectionCi + r.getDirection();
+    reflectedDir = reflectedDirectionCi+reflectedDirectionSi;
+    reflectedDir.normalize();
+}
+
+bool RayTracer::updateRefractionParams(const ray& r, const isect& i, const Material& m, const Vec3d& reflectedDirectionSi, Vec3d& refractedDirectionSt, Vec3d& refractedDirectionCt, Vec3d& refractedDir){
+    if((m.kt(i)[0] <= 0.0f&&m.kt(i)[1]<=0.0f&&m.kt(i)[2]<=0.0f) || checkTotalInternal(r,i))
+        return false;
+
+    if(i.N * r.getDirection() < 0.0f){
+        double ratioIndex = i.getMaterial().index(i);
+        ratioIndex = 1.0f/(double)ratioIndex;
+        refractedDirectionSt = ratioIndex * reflectedDirectionSi;
+        double temp = refractedDirectionSt*refractedDirectionSt;
+        if(temp>1)
+            temp = 0;
+        refractedDirectionCt = (-1.0f * i.N) * std::sqrt((1.0f - temp));
+    } else if(i.N * r.getDirection() > 0.0f) {
+        double ratioIndex = i.getMaterial().index(i);
+        refractedDirectionSt = ratioIndex * reflectedDirectionSi;
+        double temp = refractedDirectionSt*refractedDirectionSt;
+        if(temp>1)
+            temp = 0;
+        refractedDirectionCt = i.N * std::sqrt((1.0f - temp));}
+
+    refractedDir = refractedDirectionSt + refractedDirectionCt;
+    refractedDir.normalize();
+    return true;
+}
+
+bool RayTracer::checkTotalInternal(const ray &r, const isect &i){
+    if(i.N * r.getDirection() > 0.0f){
+        double incidentAngle = i.N * r.getDirection();
+        double ratioIndex = i.getMaterial().index(i);
+        if((1.0f - (ratioIndex*ratioIndex*(1.0f - incidentAngle * incidentAngle)))<0.0f)
+            return true;}
+    return false;
 }
 
 RayTracer::RayTracer()

@@ -8,6 +8,17 @@
 #include "../scene/material.h"
 #include "../scene/scene.h"
 
+template <typename T>
+int updateCordsToKeep(int normDim, T planeNormal) {
+    int cordToDrop = 0;
+    double max = std::fabs(planeNormal.n[0]);
+    for(int i =1;i<normDim;++i){
+        if(max<std::fabs(planeNormal.n[i])){
+            max = std::fabs(planeNormal.n[i]);
+            cordToDrop = i;}}
+    return cordToDrop;
+}
+
 class TrimeshFace;
 
 class Trimesh : public MaterialSceneObject

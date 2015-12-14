@@ -14,11 +14,15 @@ class RayTracer
 {
 public:
 	RayTracer();
-        ~RayTracer();
+    ~RayTracer();
 
 	Vec3d tracePixel(int i, int j);
 	Vec3d trace(double x, double y);
 	Vec3d traceRay(ray& r, int depth);
+
+    void updateReflectionParams(const ray&, const isect&, Vec3d&, Vec3d&, Vec3d&);
+    bool updateRefractionParams(const ray&, const isect&, const Material&, const Vec3d&, Vec3d&, Vec3d&, Vec3d&);
+    bool checkTotalInternal(const ray& r, const isect& i);
 
 	void getBuffer(unsigned char *&buf, int &w, int &h);
 	double aspectRatio();

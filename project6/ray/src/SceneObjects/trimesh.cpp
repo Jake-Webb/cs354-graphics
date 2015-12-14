@@ -52,9 +52,9 @@ char* Trimesh::doubleCheck()
 // they are the right number.
 {
     if( !materials.empty() && materials.size() != vertices.size() )
-        return "Bad Trimesh: Wrong number of materials.";
+        return (char*) "Bad Trimesh: Wrong number of materials.";
     if( !normals.empty() && normals.size() != vertices.size() )
-        return "Bad Trimesh: Wrong number of normals.";
+        return (char*) "Bad Trimesh: Wrong number of normals.";
 
     return 0;
 }
@@ -90,14 +90,64 @@ bool TrimeshFace::intersect(ray& r, isect& i) const {
 // intersection in u (alpha) and v (beta).
 bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 {
-
     const Vec3d& a = parent->vertices[ids[0]];
     const Vec3d& b = parent->vertices[ids[1]];
     const Vec3d& c = parent->vertices[ids[2]];
+    Vec3d planeNormal = (a-c)^(b-c);
+    planeNormal.normalize();
+    
+    int cordToDrop = updateCordsToKeep(3, planeNormal);
 
-    // YOUR CODE HERE
+    double planeDistance = -(planeNormal*a);
+    double normalProj = (planeNormal * r.getDirection()); //dot product
+    double intersectionWt = 0;
 
-    return false;
+    if(normalProj == 0)
+        return false;
+
+    intersectionWt = - (planeNormal*r.getPosition() + planeDistance)/normalProj;
+    if(intersectionWt <= RAY_EPSILON )
+        return false;
+
+    Vec3d intersectionPoint = r.at(intersectionWt);
+    Mat3d temp(a.n[0],b.n[0],c.n[0],a.n[1],b.n[1],c.n[1],1,1,1);
+    Vec3d sol(intersectionPoint.n[0],intersectionPoint.n[1],1);
+
+    if(cordToDrop == 0){
+        Vec3d tempSol(1,intersectionPoint.n[1],intersectionPoint.n[2]);
+        Mat3d tempMat(1,1,1,a.n[1],b.n[1],c.n[1],a.n[2],b.n[2],c.n[2]);
+        sol = tempSol;
+        temp = tempMat; 
+    } else if(cordToDrop == 1){
+        Vec3d tempSol(intersectionPoint.n[0],1,intersectionPoint.n[2]);
+        Mat3d tempMat(a.n[0],b.n[0],c.n[0],1,1,1,a.n[2],b.n[2],c.n[2]);
+        sol = tempSol;
+        temp = tempMat;}
+
+
+
+    Vec3d barycentricCords = temp.inverse() * sol;
+
+    if(barycentricCords[0]==0&&barycentricCords[1]==0&&barycentricCords[2]==0)
+        return false;
+    if(!(barycentricCords[0]>=0&&barycentricCords[1]>=0&&barycentricCords[2]>=0))
+        return false;
+
+    // phong interpolation
+    if(parent->vertNorms){
+        Vec3d weightFromA(parent->normals[0][0]*barycentricCords[0] , parent->normals[0][1]*barycentricCords[0] , parent->normals[0][2]*barycentricCords[0]);
+        Vec3d weightFromB(parent->normals[1][0]*barycentricCords[1] , parent->normals[1][1]*barycentricCords[1] , parent->normals[1][2]*barycentricCords[1]);
+        Vec3d weightFromC(parent->normals[2][0]*barycentricCords[2] , parent->normals[2][1]*barycentricCords[2] , parent->normals[2][2]*barycentricCords[2]);
+        planeNormal = weightFromA + weightFromB + weightFromC;
+        planeNormal.normalize();
+    }
+
+    i.setN(planeNormal);
+    i.setT(intersectionWt);
+    i.setBary(barycentricCords);
+    i.setMaterial(getMaterial());
+    //i.setUVCoordinates(Vec2d(barycentricCords[0],barycentricCords[1]));
+    return true;
 }
 
 void Trimesh::generateNormals()
